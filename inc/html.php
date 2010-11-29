@@ -26,6 +26,7 @@ function html_wikilink($id,$name=null,$search=''){
 /**
  * Helps building long attribute lists
  *
+ * @deprecated Use buildAttributes instead
  * @author Andreas Gohr <andi@splitbrain.org>
  */
 function html_attbuild($attributes){
@@ -162,11 +163,12 @@ function html_topbtn(){
  *
  * @author Andreas Gohr <andi@splitbrain.org>
  */
-function html_btn($name,$id,$akey,$params,$method='get',$tooltip=''){
+function html_btn($name,$id,$akey,$params,$method='get',$tooltip='',$label=false){
     global $conf;
     global $lang;
 
-    $label = $lang['btn_'.$name];
+    if (!$label)
+        $label = $lang['btn_'.$name];
 
     $ret = '';
     $tip = '';

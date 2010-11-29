@@ -268,6 +268,9 @@ function breadcrumbs(){
     global $ACT;
     global $conf;
 
+    // Prevent infinite loop later in this function
+    if (!is_numeric($conf['breadcrumbs']) || $conf['breadcrumbs'] <= 0) return array();
+
     //first visit?
     $crumbs = isset($_SESSION[DOKU_COOKIE]['bc']) ? $_SESSION[DOKU_COOKIE]['bc'] : array();
     //we only save on show and existing wiki documents
@@ -1266,6 +1269,21 @@ function dformat($dt=null,$format=''){
 }
 
 /**
+ * Formats a timestamp as ISO 8601 date
+ *
+ * @author <ungu at terong dot com>
+ * @link http://www.php.net/manual/en/function.date.php#54072
+ */
+function date_iso8601($int_date) {
+   //$int_date: current date in UNIX timestamp
+   $date_mod = date('Y-m-d\TH:i:s', $int_date);
+   $pre_timezone = date('O', $int_date);
+   $time_zone = substr($pre_timezone, 0, 3).":".substr($pre_timezone, 3, 2);
+   $date_mod .= $time_zone;
+   return $date_mod;
+}
+
+/**
  * return an obfuscated email address in line with $conf['mailguard'] setting
  *
  * @author Harry Fuecks <hfuecks@gmail.com>
@@ -1523,4 +1541,4 @@ function valid_input_set($param, $valid_values, $array, $exc = '') {
     }
 }
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :
+//Setup VIM: ex: et ts=2 :

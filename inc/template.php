@@ -609,7 +609,7 @@ function tpl_get_action($type) {
             $type = 'subscribe';
             $params['do'] = 'subscribe';
         case 'subscribe':
-            if(!$conf['useacl'] || !$auth || $ACT !== 'show' || !$conf['subscribers'] || !$_SERVER['REMOTE_USER']){
+            if(!$conf['useacl'] || !$auth  || !$conf['subscribers'] || !$_SERVER['REMOTE_USER']){
                 return false;
             }
             break;
@@ -617,7 +617,7 @@ function tpl_get_action($type) {
             break;
         case 'profile':
             if(!$conf['useacl'] || !$auth || !isset($_SERVER['REMOTE_USER']) ||
-                    !$auth->canDo('Profile') || ($ACT=='profile')){
+                    !$auth->canDo('Profile')){
                 return false;
             }
             break;
@@ -690,7 +690,7 @@ function tpl_breadcrumbs($sep='&raquo;'){
     global $conf;
 
     //check if enabled
-    if(!$conf['breadcrumbs']) return false;
+    if(!is_numeric($conf['breadcrumbs']) || $conf['breadcrumbs'] <= 0) return false;
 
     $crumbs = breadcrumbs(); //setup crumb trace
 
@@ -1359,5 +1359,18 @@ function tpl_flush(){
 }
 
 
-//Setup VIM: ex: et ts=4 enc=utf-8 :
+/**
+ * Use favicon.ico from data/media root directory if it exists, otherwise use
+ * the one in the template's image directory.
+ *
+ * @author Anika Henke <anika@selfthinker.org>
+ */
+function tpl_getFavicon() {
+    if (file_exists(mediaFN('favicon.ico')))
+        return ml('favicon.ico');
+    return DOKU_TPL.'images/favicon.ico';
+}
+
+
+//Setup VIM: ex: et ts=4 :
 

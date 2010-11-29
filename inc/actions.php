@@ -20,6 +20,7 @@ function act_dispatch(){
     global $ID;
     global $QUERY;
     global $lang;
+    global $conf;
 
     $preact = $ACT;
 
@@ -50,8 +51,19 @@ function act_dispatch(){
             }
         }
 
+        //display some infos
+        if($ACT == 'check'){
+            check();
+            $ACT = 'show';
+        }
+
         //check permissions
         $ACT = act_permcheck($ACT);
+
+        //sitemap
+        if ($ACT == 'sitemap'){
+            $ACT = act_sitemap($ACT);
+        }
 
         //register
         if($ACT == 'register' && $_POST['save'] && register()){
@@ -115,12 +127,6 @@ function act_dispatch(){
         if(substr($ACT,0,7) == 'export_')
             $ACT = act_export($ACT);
 
-        //display some infos
-        if($ACT == 'check'){
-            check();
-            $ACT = 'show';
-        }
-
         //handle admin tasks
         if($ACT == 'admin'){
             // retrieve admin plugin name from $_REQUEST['page']
@@ -138,6 +144,10 @@ function act_dispatch(){
         $ACT = act_permcheck($ACT);
     }  // end event ACTION_ACT_PREPROCESS default action
     $evt->advise_after();
+    // Make sure plugs can handle 'denied'
+    if($conf['send404'] && $ACT == 'denied') {
+        header('HTTP/1.0 403 Forbidden');
+    }
     unset($evt);
 
     // when action 'show', the intial not 'show' and POST, do a redirect
@@ -205,7 +215,7 @@ function act_clean($act){
                     'preview','search','show','check','index','revisions',
                     'diff','recent','backlink','admin','subscribe','revert',
                     'unsubscribe','profile','resendpwd','recover',
-                    'draftdel','subscribens','unsubscribens',)) && substr($act,0,7) != 'export_' ) {
+                    'draftdel','subscribens','unsubscribens','sitemap')) && substr($act,0,7) != 'export_' ) {
         msg('Command unknown: '.htmlspecialchars($act),-1);
         return 'show';
     }
@@ -233,7 +243,8 @@ function act_permcheck($act){
         }else{
             $permneed = AUTH_CREATE;
         }
-    }elseif(in_array($act,array('login','search','recent','profile','index'))){
+    }elseif(in_array($act,array('login','search','recent','profile','index', 'sitemap'))){
+    }elseif(in_array($act,array('login','search','recent','profile','sitemap'))){
         $permneed = AUTH_NONE;
     }elseif($act == 'revert'){
         $permneed = AUTH_ADMIN;
@@ -587,6 +598,51 @@ function act_export($act){
 }
 
 /**
+ * Handle sitemap delivery
+ *
+ * @author Michael Hamann <michael@content-space.de>
+ */
+function act_sitemap($act) {
+    global $conf;
+
+    if ($conf['sitemap'] < 1 || !is_numeric($conf['sitemap'])) {
+        header("HTTP/1.0 404 Not Found");
+        print "Sitemap generation is disabled.";
+        exit;
+    }
+    
+    $sitemap = Sitemapper::getFilePath();
+    if(strrchr($sitemap, '.') === '.gz'){
+        $mime = 'application/x-gzip';
+    }else{
+        $mime = 'application/xml; charset=utf-8';
+    }
+
+    // Check if sitemap file exists, otherwise create it
+    if (!is_readable($sitemap)) {
+        Sitemapper::generate();
+    }
+
+    if (is_readable($sitemap)) {
+        // Send headers
+        header('Content-Type: '.$mime);
+
+        http_conditionalRequest(filemtime($sitemap));
+
+        // Send file
+        //use x-sendfile header to pass the delivery to compatible webservers
+        if (http_sendfile($sitemap)) exit;
+
+        readfile($sitemap);
+        exit;
+    }
+
+    header("HTTP/1.0 500 Internal Server Error");
+    print "Could not read the sitemap file - bad permissions?";
+    exit;
+}
+
+/**
  * Handle page 'subscribe'
  *
  * Throws exception on error.
@@ -687,4 +743,4 @@ function subscription_handle_post(&$params) {
     $params = compact('target', 'style', 'data', 'action');
 }
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :
+//Setup VIM: ex: et ts=2 :

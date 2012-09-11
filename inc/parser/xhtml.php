@@ -439,7 +439,7 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
             $class = 'mediafile mf_'.$class;
 
             $this->doc .= '<dl class="'.$type.'">'.DOKU_LF;
-            $this->doc .= '<dt><a href="'.exportlink($ID,'code',array('codeblock'=>$this->_codeblock)).'" title="'.$lang['download'].'" class="'.$class.'">';
+            $this->doc .= '<dt><a href="'.exportlink($ID,'code',array('codeblock'=>$this->_codeblock, 'fn' => $filename)).'" title="'.$lang['download'].'" class="'.$class.'">';
             $this->doc .= hsc($filename);
             $this->doc .= '</a></dt>'.DOKU_LF.'<dd>';
         }

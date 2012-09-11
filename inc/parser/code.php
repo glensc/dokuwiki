@@ -21,7 +21,7 @@ class Doku_Renderer_code extends Doku_Renderer {
         if(!$filename) $filename = 'snippet.'.$language;
         $filename = utf8_basename($filename);
 
-        if($this->_codeblock == $INPUT->str('codeblock')){
+        if((string)$this->_codeblock === $INPUT->str('codeblock') || ($filename && $filename === $INPUT->str('fn'))){
             header("Content-Type: text/plain; charset=utf-8");
             header("Content-Disposition: attachment; filename=$filename");
             header("X-Robots-Tag: noindex");

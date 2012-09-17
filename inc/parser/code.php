@@ -8,7 +8,11 @@ if(!defined('DOKU_INC')) die('meh.');
 require_once DOKU_INC . 'inc/parser/renderer.php';
 
 class Doku_Renderer_code extends Doku_Renderer {
-    var $_codeblock=0;
+	/**
+	 * counts the code and file blocks, used to provide download links
+	 * @deprecated now we have filenames which make up permalinks
+	 */
+    var $_codeblock = 0;
 
     /**
      * Send the wanted code block to the browser

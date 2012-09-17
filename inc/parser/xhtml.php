@@ -38,7 +38,6 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
     var $store = '';
 
     var $_counter   = array(); // used as global counter, introduced for table classes
-    var $_codeblock = 0; // counts the code and file blocks, used to provide download links
 
     /**
      * Register a new edit section range
@@ -439,7 +438,7 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
             $class = 'mediafile mf_'.$class;
 
             $this->doc .= '<dl class="'.$type.'">'.DOKU_LF;
-            $this->doc .= '<dt><a href="'.exportlink($ID,'code',array('codeblock'=>$this->_codeblock, 'fn' => $filename)).'" title="'.$lang['download'].'" class="'.$class.'">';
+            $this->doc .= '<dt><a href="'.exportlink($ID,'code',array('fn' => $filename)).'" title="'.$lang['download'].'" class="'.$class.'">';
             $this->doc .= hsc($filename);
             $this->doc .= '</a></dt>'.DOKU_LF.'<dd>';
         }
@@ -463,8 +462,6 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
         if($filename){
             $this->doc .= '</dd></dl>'.DOKU_LF;
         }
-
-        $this->_codeblock++;
     }
 
     function acronym($acronym) {

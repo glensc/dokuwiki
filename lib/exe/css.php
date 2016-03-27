@@ -372,6 +372,10 @@ function css_interwiki(){
             echo "a.iw_$class {";
             echo '  background-image: url('.DOKU_BASE.'lib/images/interwiki/'.$iw.'.gif)';
             echo '}';
+        }elseif(file_exists(DOKU_INC.'lib/images/interwiki/'.$iw.'.svg')){
+            echo "a.iw_$class {";
+            echo '  background-image: url('.DOKU_BASE.'lib/images/interwiki/'.$iw.'.svg)';
+            echo '}';
         }
     }
 }
